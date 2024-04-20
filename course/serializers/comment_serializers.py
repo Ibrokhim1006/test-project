@@ -1,14 +1,17 @@
 from rest_framework import serializers
 from course.models import CommentCourse, Grade
+from authen.serializers.serializers import UserInformationSerializer
 
 
 class GradeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Grade
-        fields = '__all__'
+        fields = ['id', 'name']
 
 
 class CommentsSerializer(serializers.ModelSerializer):
+    grade = GradeSerializer(read_only=True)
+    owner = UserInformationSerializer(read_only=True)
     
     class Meta:
         model = CommentCourse

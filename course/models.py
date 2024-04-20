@@ -10,6 +10,13 @@ class Category(models.Model):
 
     def __str__(self):
         return self.name
+    
+    def delete_if_no_courses(self):
+        if self.course_set.exists():
+            return False
+        else:
+            self.delete()
+            return True
 
 
 class Course(models.Model):
@@ -25,6 +32,13 @@ class Course(models.Model):
     def __str__(self):
         return self.name
 
+    def delete_if_no_course_section(self):
+        if self.section.exists():  # Use the related name 'section' here
+            return False
+        else:
+            self.delete()
+            return True
+
 
 class CourseSection(models.Model):
     name = models.CharField(max_length=250)
@@ -34,6 +48,14 @@ class CourseSection(models.Model):
 
     def __str__(self):
         return self.name
+    
+
+    def delete_if_no_lesson(self):
+        if self.lesson_set.exists():
+            return False
+        else:
+            self.delete()
+            return True
 
 
 class Lesson(models.Model):

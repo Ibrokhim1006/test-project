@@ -7,7 +7,9 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 from utils.renderers import UserRenderers
 from utils.permissons import IsAdmin
 from utils.expected_fields import check_required_key
-from utils.response import success_response, success_created_response, bad_request_response
+from utils.response import success_response, success_created_response, bad_request_response, user_not_found_response
+
+from django.core.exceptions import ObjectDoesNotExist
 
 from course.models import Course
 from course.serializers.course_serializers import CoursesSerializer, CourseSerializer
@@ -20,7 +22,7 @@ class CoursesView(APIView):
 
     def get(self, request):
         queryset = Course.objects.all().order_by('-create_at')
-        serializer = CoursesSerializer(queryset, many=True, context={'request': request})
+        serializer = CoursesSerializer(queryset, many=True, context={'request': request, 'owner': request.user})
         return success_response(serializer.data)
 
     @swagger_auto_schema(request_body=CourseSerializer)
@@ -43,7 +45,7 @@ class CourseView(APIView):
 
     def get(self, request, pk):
         objects_list = get_object_or_404(Course, id=pk)
-        serializers = CoursesSerializer(objects_list)
+        serializers = CoursesSerializer(objects_list, context={'request': request, 'owner': request.user})
         return success_response(serializers.data)
 
     @swagger_auto_schema(request_body=CourseSerializer)
@@ -59,6 +61,11 @@ class CourseView(APIView):
         return bad_request_response(serializers.errors)
 
     def delete(self, request, pk):
-        objects_get = Course.objects.get(id=pk)
-        objects_get.delete()
-        return success_response("delete success")
+        try:
+            course = Course.objects.get(id=pk)
+            if course.delete_if_no_course_section():
+                return success_response({"message": "Course deleted successfully."})
+            else:
+                return bad_request_response({"message": "There are courses linked to a section that cannot be deleted."})
+        except ObjectDoesNotExist:
+            return user_not_found_response({"message": "No such Course exists."})

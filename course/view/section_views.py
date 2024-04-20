@@ -1,17 +1,18 @@
 from django.shortcuts import get_object_or_404
 from drf_yasg.utils import swagger_auto_schema
 
+from django.core.exceptions import ObjectDoesNotExist
+
 from rest_framework.views import APIView
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
 from utils.renderers import UserRenderers
 from utils.permissons import IsAdmin, IsAuth
 from utils.expected_fields import check_required_key
-from utils.response import success_response, success_created_response, bad_request_response
+from utils.response import success_response, success_created_response, bad_request_response, user_not_found_response
 
-from course.models import CourseSection, Course
+from course.models import CourseSection
 from course.serializers.section_serializers import SectionsSerializer, SectionSerializer
-from course.serializers.course_serializers import CoursesSerializer
 
 
 class SectionsView(APIView):
@@ -60,9 +61,14 @@ class SectionView(APIView):
         return bad_request_response(serializers.errors)
 
     def delete(self, request, pk):
-        objects_get = CourseSection.objects.get(id=pk)
-        objects_get.delete()
-        return success_response("delete success")
+        try:
+            course = CourseSection.objects.get(id=pk)
+            if course.delete_if_no_lesson():
+                return success_response({"message": "Section deleted successfully."})
+            else:
+                return bad_request_response({"message": "There are courses linked to a Lesson that cannot be deleted."})
+        except ObjectDoesNotExist:
+            return user_not_found_response({"message": "No such Section exists."})
 
 
 class SectionCourseView(APIView):

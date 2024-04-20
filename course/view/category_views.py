@@ -4,10 +4,12 @@ from drf_yasg.utils import swagger_auto_schema
 from rest_framework.views import APIView
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
+from django.core.exceptions import ObjectDoesNotExist
+
 from utils.renderers import UserRenderers
 from utils.permissons import IsAdmin, IsAuth
 from utils.expected_fields import check_required_key
-from utils.response import success_response, success_created_response, bad_request_response
+from utils.response import success_response, success_created_response, bad_request_response, user_not_found_response
 
 from course.models import Category, Course
 from course.serializers.category_serializers import CategorysSerializer, CategorySerializer
@@ -60,9 +62,14 @@ class CategroyView(APIView):
         return bad_request_response(serializers.errors)
 
     def delete(self, request, pk):
-        objects_get = Category.objects.get(id=pk)
-        objects_get.delete()
-        return success_response("delete success")
+        try:
+            category = Category.objects.get(id=pk)
+            if category.delete_if_no_courses():
+                return success_response({"message": "Category deleted successfully."})
+            else:
+                return bad_request_response({"message": "Category has associated courses, cannot be deleted."})
+        except ObjectDoesNotExist:
+            return user_not_found_response({"message": "Category does not exist."})
 
 
 class CategoryCourseView(APIView):

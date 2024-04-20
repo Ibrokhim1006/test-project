@@ -4,6 +4,7 @@ from course.view.course_views import CoursesView, CourseView
 from course.view.section_views import SectionsView, SectionView, SectionCourseView
 from course.view.lession_views import LessonsView, LessonView, LessonSectionView
 from course.view.comment_views import CommentsView, CommentView, GradeView, CommentCourseView
+from course.view.favorite_views import FavoritesView, FavoriteViews
 
 
 urlpatterns = [
@@ -25,7 +26,10 @@ urlpatterns = [
     path('grade/', GradeView.as_view()),
     path('comment/', CommentsView.as_view(), name='Comment course'),
     path('comment/<int:pk>/', CommentView.as_view(), name='Comment courese'),
-    path('comment/course/<int:pk>/', CommentCourseView.as_view(), name='Comment course')
+    path('comment/course/<int:pk>/', CommentCourseView.as_view(), name='Comment course'),
+    
+    path('favorite/', FavoritesView.as_view(), name='Favorite users all'),
+    path('favorite/<int:pk>/', FavoriteViews.as_view(), name='Favorite user'),
 
 
 ]
