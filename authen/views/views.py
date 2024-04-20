@@ -77,7 +77,6 @@ class UserSignIn(APIView):
             user = authenticate(request, username=username, password=password)
             if user is not None:
                 tokens = get_token_for_user(user)
-                print(request.user)
                 return Response({"token": tokens}, status=status.HTTP_200_OK)
             else:
                 return Response({"error": ["Invalid username/password."]}, status=status.HTTP_404_NOT_FOUND)
