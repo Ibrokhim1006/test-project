@@ -30,6 +30,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('auth/', include('authen.urls')),
     path('', include('course.urls')),
+    path('', include('chat.urls')),
 
 ]
 

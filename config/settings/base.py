@@ -16,6 +16,8 @@ SECRET_KEY = 'django-insecure-nml1e@1%+)%6kr0s2@@i$5c1hm&$kn2y@tgh^v(21a06d^h=9u
 # Application definition
 
 INSTALLED_APPS = [
+    'daphne',
+    'channels',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -30,6 +32,7 @@ INSTALLED_APPS = [
     'django_filters',
     'authen',
     'course',
+    'chat',
 ]
 
 MIDDLEWARE = [
@@ -62,6 +65,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'config.wsgi.application'
+ASGI_APPLICATION = 'config.asgi.application'
 
 
 # Password validation
